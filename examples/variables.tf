@@ -233,10 +233,10 @@ variable "storage_accounts" {
   default = {}
 }
 variable "storage_account_file_shares" {
-  default     = {}
+  default = {}
 }
 variable "maps_accounts" {
-  default     = {}
+  default = {}
 }
 variable "azuread_credential_policies" {
   default = {}
@@ -557,6 +557,21 @@ variable "load_balancers" {
 }
 
 variable "ip_groups" {
+  default = {}
+}
+variable "container_app_environment" {
+  default = {}
+}
+variable "container_app_environment_certificate" {
+  default = {}
+}
+variable "container_app_dapr_component" {
+  default = {}
+}
+variable "container_app" {
+  default = {}
+}
+variable "container_app_environment_storage" {
   default = {}
 }
 variable "container_groups" {
