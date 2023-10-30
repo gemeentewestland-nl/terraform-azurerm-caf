@@ -18,3 +18,4 @@ variable "resource_group" {
 }
 variable "settings" {}
 variable "container_app_environment_id" {}
+variable "dynamic_keyvault_secrets" {}

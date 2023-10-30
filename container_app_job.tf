@@ -11,6 +11,8 @@ module "container_app_job" {
   combined_diagnostics         = local.combined_diagnostics
   diagnostic_profiles          = try(each.value.diagnostic_profiles, {})
   diagnostics                  = local.combined_diagnostics
+  dynamic_keyvault_secrets     = try(local.security.dynamic_keyvault_secrets, {})
+  
   combined_resources = {
     keyvaults                              = local.combined_objects_keyvaults
     managed_identities                     = local.combined_objects_managed_identities

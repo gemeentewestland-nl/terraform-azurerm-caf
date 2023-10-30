@@ -4,11 +4,11 @@ locals {
       {
         name          = secret.name
         value         = try(secret.value, null)
-        identity      = try(try(secret.managed_identity_id, var.combined_objects.managed_identities[try(secret.managed_identity.lz_key, var.client_config.landingzone_key)][try(secret.managed_identity_key, secret.managed_identity.key)].id), null)
+        identity      = try(try(secret.managed_identity_id, var.combined_resources.managed_identities[try(secret.managed_identity.lz_key, var.client_config.landingzone_key)][try(secret.managed_identity_key, secret.managed_identity.key)].id), null)
         keyvault_url  = try(
           try(
             secret.keyvault_url, 
-            format("%ssecrets/%s", var.combined_objects.keyvaults[try(secret.keyvault.lz_key, var.client_config.landingzone_key)][try(secret.keyvault_key, secret.keyvault.key)].vault_uri, try(var.dynamic_keyvault_secrets[try(secret.keyvault_key, secret.keyvault.key)][secret.dynamic_keyvault_secret_key].secret_name, try(secret.keyvault_secret_name, null)))
+            format("%ssecrets/%s", var.combined_resources.keyvaults[try(secret.keyvault.lz_key, var.client_config.landingzone_key)][try(secret.keyvault_key, secret.keyvault.key)].vault_uri, try(var.dynamic_keyvault_secrets[try(secret.keyvault_key, secret.keyvault.key)][secret.dynamic_keyvault_secret_key].secret_name, try(secret.keyvault_secret_name, null)))
           )
         , null)
       }
@@ -20,7 +20,7 @@ locals {
       {
         name                  = secret.name
         keyvault_secret_name  = try(var.dynamic_keyvault_secrets[try(secret.keyvault_key, secret.keyvault.key)][secret.dynamic_keyvault_secret_key].secret_name, secret.keyvault_secret_name)
-        key_vault_id          = try(secret.key_vault_id, try(var.combined_objects.keyvaults[try(secret.keyvault.lz_key, var.client_config.landingzone_key)][try(secret.keyvault_key, secret.keyvault.key)].id, null))
+        key_vault_id          = try(secret.key_vault_id, try(var.combined_resources.keyvaults[try(secret.keyvault.lz_key, var.client_config.landingzone_key)][try(secret.keyvault_key, secret.keyvault.key)].id, null))
       }
     ] if (can(secret.dynamic_keyvault_secret_key) || can(secret.keyvault_secret_name)) && !(can(try(secret.keyvault_url, secret.identity)))
   ])
