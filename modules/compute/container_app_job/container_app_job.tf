@@ -36,7 +36,7 @@ resource "azapi_resource" "container_app_job" {
   body = jsonencode({
     properties = {
       
-      environmentId       = var.combined_objects.container_app_environments[try(var.settings.container_app_environment.lz_key, var.client_config.landingzone_key)][try(var.settings.container_app_environment_key, var.settings.container_app_environment.key)].id
+      environmentId       = var.container_app_environment_id
       workloadProfileName = try(var.settings.workload_profile_name, "Consumption")
       configuration = {
         dapr                  = can(var.settings.dapr) ? {
@@ -65,7 +65,7 @@ resource "azapi_resource" "container_app_job" {
             minExecutions   = try(var.settings.scale_min_executions, 0)
             maxExecutions   = try(var.settings.scale_max_executions, 10)
             pollingInterval = try(var.settings.scale_polling_interval, 30)
-            rules           = local.job_scale_rules
+            rules           = local.job_event_scale_rules
           }
         }: null
         scheduleTriggerConfig = var.settings.trigger_type == "Schedule" ? {
@@ -85,9 +85,8 @@ resource "azapi_resource" "container_app_job" {
       }
       template = {
         containers = local.containers
-        
-        initContainers = can(var.settings.init_containers) ? local.init_containers : null
-        volumes        = try(local.volumes, null)
+        initContainers = can(var.settings.template.init_containers) ? local.init_containers : null
+        volumes        = can(var.settings.template.volumes) ? local.volumes : null
       }
     }
   })

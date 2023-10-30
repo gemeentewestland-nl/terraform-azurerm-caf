@@ -89,6 +89,7 @@ locals {
     container_app_environment             = try(var.compute.container_app_environment, {})
     container_app_environment_certificate = try(var.compute.container_app_environment_certificate, {})
     container_app_environment_storage     = try(var.compute.container_app_environment_storage, {})
+    container_app_job                     = try(var.compute.container_app_job, {})
     container_groups                      = try(var.compute.container_groups, {})
     dedicated_hosts                       = try(var.compute.dedicated_hosts, {})
     dedicated_host_groups                 = try(var.compute.dedicated_host_groups, {})

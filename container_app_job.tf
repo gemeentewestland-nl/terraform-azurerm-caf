@@ -23,7 +23,7 @@ module "container_app_job" {
   settings        = each.value
 }
 
-output "container_app" {
-  value = module.container_app
+output "container_app_job" {
+  value = module.container_app_job
 }
 

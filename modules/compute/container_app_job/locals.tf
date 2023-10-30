@@ -41,8 +41,8 @@ locals {
 
   managed_identities = concat(local.managed_local_identities, local.managed_remote_identities)
 
-  job_scale_rules = flatten([
-    for rule in try(var.settings.event_scale_rule, []): [
+  job_event_scale_rules = flatten([
+    for rule in try(var.settings.job_event_scale_rules, []): [
       {
         name = rule.name
         type = rule.job_rule_type
@@ -60,7 +60,7 @@ locals {
   ])
   
   containers = flatten([
-    for key, container in var.settings.containers: [{
+    for key, container in var.settings.template.container: [{
       image   = container.image
       name    = try(container.name, "${key}")
       command = try(container.command, null)
@@ -160,7 +160,7 @@ locals {
   ])
 
   init_containers = flatten([
-    for key, container in try(var.settings.init_containers, []): [{
+    for key, container in try(var.settings.template.init_containers, []): [{
       image   = container.image
       name    = try(container.name, "${key}")
       command = try(container.command, null)
@@ -181,7 +181,7 @@ locals {
   ])
 
   volumes = flatten([
-    for vk, volume in try(var.settings.volumes, []): [{
+    for vk, volume in try(var.settings.template.volumes, []): [{
       mountOptions = try(volume.mount_options, null)
       name         = volume.name
       secrets      = try(volume.secrets, null)

@@ -9,23 +9,20 @@ resource "azurecaf_name" "cae" {
 }
 
 resource "azurerm_container_app_environment" "cae" {
-  count = can(settings.workload_profiles) ? 0 : 1
+  count = can(var.settings.workload_profiles) ? 0 : 1
   name                           = azurecaf_name.cae.result
   location                       = local.location
   resource_group_name            = local.resource_group_name
   log_analytics_workspace_id     = can(var.settings.log_analytics_workspace_id) ? var.settings.log_analytics_workspace_id : var.diagnostics.log_analytics[var.settings.log_analytics_key].id
-  
+
   infrastructure_subnet_id       = try(var.subnet_id, null)
-  zone_redundancy_enabled        = try(var.settings.zone_redundancy_enabled, null)
 
   internal_load_balancer_enabled = try(var.settings.internal_load_balancer_enabled, false)
-  platform_reserved_cidr         = try(var.settings.platform_reserved_cidr)
-  docker_bridge_cidr               = try(var.settings.docker_bridge_cidr, null)
   tags                           = merge(local.tags, try(var.settings.tags, null))
 }
 
 data "azurerm_resource_group" "ca" {
-  count = can(settings.workload_profiles) ? 1 : 0
+  count = can(var.settings.workload_profiles) ? 1 : 0
   name = local.resource_group_name
 }
 
@@ -40,13 +37,19 @@ locals {
   ])
 }
 
-resource "azapi_resource" "container_app_environment" {
-  count = can(settings.workload_profiles) ? 1 : 0
+resource "azapi_resource" "cae" {
+  count     = can(var.settings.workload_profiles) ? 1 : 0
   type      = "Microsoft.App/managedEnvironments@2023-05-01"
   name      = azurecaf_name.cae.result
-  parent_id = data.azurerm_resource_group.ca.id
+  parent_id = data.azurerm_resource_group.ca[0].id
   location  = local.location
   tags      = merge(local.tags, try(var.settings.tags, null))
+
+  schema_validation_enabled = false
+  ignore_missing_property = true
+  ignore_casing = true
+
+  response_export_values = ["*"]
 
   body = jsonencode({
     properties = {
@@ -61,10 +64,10 @@ resource "azapi_resource" "container_app_environment" {
         dockerBridgeCidr       = try(var.settings.docker_bridge_cidr, null)
         infrastructureSubnetId = try(var.subnet_id, null)
         internal               = try(var.settings.internal_load_balancer_enabled, false)
-        platformReservedCidr   = try(var.settings.platform_reserved_cidr)
+        platformReservedCidr   = try(var.settings.platform_reserved_cidr, null)
         platformReservedDnsIP  = try(var.settings.platform_reserved_dns_ip, null)
       }: null
-      workloadProfiles = var.settings.workload_profiles
+      workloadProfiles = local.workload_profiles
     }
   })
 }
