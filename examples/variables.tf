@@ -574,6 +574,9 @@ variable "container_app" {
 variable "container_app_environment_storage" {
   default = {}
 }
+variable "container_app_job" {
+  default = {}
+}
 variable "container_groups" {
   default = {}
 }

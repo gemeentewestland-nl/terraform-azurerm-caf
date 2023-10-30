@@ -108,6 +108,7 @@ module "example" {
     container_app_environment             = var.container_app_environment
     container_app_environment_certificate = var.container_app_environment_certificate
     container_app_environment_storage     = var.container_app_environment_storage
+    container_app_job                     = var.container_app_job
     container_groups                      = var.container_groups
     dedicated_host_groups                 = var.dedicated_host_groups
     dedicated_hosts                       = var.dedicated_hosts
