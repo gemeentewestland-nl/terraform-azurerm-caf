@@ -15,16 +15,6 @@ locals {
     ] if can(secret.value) || can(try(secret.managed_identity_id, try(secret.managed_identity_key, secret.managed_identity.key)))
   ])
 
-  dynamic_secrets = flatten([
-    for secret in try(var.settings.secrets, []) : [
-      {
-        name                  = secret.name
-        keyvault_secret_name  = try(var.dynamic_keyvault_secrets[try(secret.keyvault_key, secret.keyvault.key)][secret.dynamic_keyvault_secret_key].secret_name, secret.keyvault_secret_name)
-        key_vault_id          = try(secret.key_vault_id, try(var.combined_resources.keyvaults[try(secret.keyvault.lz_key, var.client_config.landingzone_key)][try(secret.keyvault_key, secret.keyvault.key)].id, null))
-      }
-    ] if (can(secret.dynamic_keyvault_secret_key) || can(secret.keyvault_secret_name)) && !(can(try(secret.keyvault_url, secret.identity)))
-  ])
-
   managed_local_identities = flatten([
     for managed_identity_key in try(var.settings.identity.managed_identity_keys, []) : [
       var.combined_resources.managed_identities[var.client_config.landingzone_key][managed_identity_key].id

@@ -39,7 +39,7 @@ resource "azapi_resource" "container_app_job" {
       environmentId       = var.container_app_environment_id
       workloadProfileName = try(var.settings.workload_profile_name, "Consumption")
       configuration = {
-        dapr                  = can(var.settings.dapr) ? {
+        dapr = can(var.settings.dapr) ? {
           appId = var.settings.dapr.id
           appPort = try(var.settings.dapr.port, null)
           appProtocol = try(var.settings.dapr.protocol, null)
