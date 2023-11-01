@@ -5,7 +5,7 @@ locals {
         name          = secret.name
         value         = try(secret.value, null)
         identity      = try(try(secret.managed_identity_id, var.combined_resources.managed_identities[try(secret.managed_identity.lz_key, var.client_config.landingzone_key)][try(secret.managed_identity_key, secret.managed_identity.key)].id), null)
-        keyvault_url  = try(
+        keyVaultUrl   = try(
           try(
             secret.keyvault_url, 
             format("%ssecrets/%s", var.combined_resources.keyvaults[try(secret.keyvault.lz_key, var.client_config.landingzone_key)][try(secret.keyvault_key, secret.keyvault.key)].vault_uri, try(var.dynamic_keyvault_secrets[try(secret.keyvault_key, secret.keyvault.key)][secret.dynamic_keyvault_secret_key].secret_name, try(secret.keyvault_secret_name, null)))
@@ -42,21 +42,17 @@ locals {
   managed_identities = concat(local.managed_local_identities, local.managed_remote_identities)
 
   job_event_scale_rules = flatten([
-    for rule in try(var.settings.job_event_scale_rules, []): [
-      {
-        name = rule.name
-        type = rule.job_rule_type
-        metadata = rule.metadata
-        auth = flatten([
-          for auth in try(rule.authentication,[]): [
-            {
-              secretRef = auth.secret_name
-              triggerParameter = auth.trigger_parameter
-            }
-          ]
-        ])
-      }
-    ]
+    for rule in try(var.settings.job_event_scale_rules, []): [{
+      name = rule.name
+      type = rule.type
+      metadata = rule.metadata
+      auth = flatten([
+        for auth in try(rule.authentication,[]): [{
+          secretRef = auth.secret_name
+          triggerParameter = auth.trigger_parameter
+        }]
+      ])
+    }]
   ])
   
   containers = flatten([
@@ -65,7 +61,13 @@ locals {
       name    = try(container.name, "${key}")
       command = try(container.command, null)
       args    = try(container.args, null)
-      env     = try(container.env, null)
+      env     = flatten([
+        for env in try(container.env,[]):[{
+          name      = env.name
+          value     = try(tostring(env.value), null)
+          secretRef = try(env.secret_name, null)
+        }]
+      ])
       probes = concat(
         flatten([
           for spk, startup_probe in try(container.startup_probe,[]): [{

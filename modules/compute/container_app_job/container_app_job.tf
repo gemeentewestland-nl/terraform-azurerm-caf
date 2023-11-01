@@ -13,7 +13,7 @@ data "azurerm_resource_group" "ca" {
 }
 
 resource "azapi_resource" "container_app_job" {
-  type      = "Microsoft.App/jobs@2023-05-02-preview"
+  type      = "Microsoft.App/jobs@2023-05-01"
   name      = azurecaf_name.ca.result
   location  = data.azurerm_resource_group.ca.location 
   parent_id = data.azurerm_resource_group.ca.id
