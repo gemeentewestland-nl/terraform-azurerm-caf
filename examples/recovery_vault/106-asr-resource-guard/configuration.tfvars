@@ -20,7 +20,10 @@ recovery_vaults = {
     resource_guard = {
       name = "dprg-vault-re1"
       #List of critical operations which are NOT protected by this resourceGuard.
-      vault_critical_operation_exclusion_list = ["Microsoft.RecoveryServices/vaults/backupconfig/delete", "Microsoft.RecoveryServices/vaults/backupResourceGuardProxies/write"]
+      vault_critical_operation_exclusion_list = [
+        "Microsoft.RecoveryServices/vaults/backupconfig/delete", 
+        "Microsoft.RecoveryServices/vaults/backupResourceGuardProxies/write"
+      ]
     }
 
     replication_policies = {
