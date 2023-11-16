@@ -34,7 +34,3 @@ module "recovery_vault_remote" {
   subnet_id           = var.subnet_id
   subresource_names   = toset(try(each.value.private_service_connection.subresource_names, ["AzureSiteRecovery"]))
 }
-
-output "testmarco" {
-  value = var.resource_groups
-}
