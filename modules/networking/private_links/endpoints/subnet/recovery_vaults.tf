@@ -29,7 +29,7 @@ module "recovery_vault_remote" {
   name                = try(each.value.name, each.key)
   private_dns         = var.private_dns
   resource_group_name = try(var.resource_groups[each.value.resource_group_key].name, var.vnet_resource_group_name)
-  resource_id         = var.remote_objects.recovery_vaults[var.client_config.landingzone_key][each.key].id
+  resource_id         = var.remote_objects.recovery_vaults[each.value.lz_key][each.key].id
   settings            = each.value
   subnet_id           = var.subnet_id
   subresource_names   = toset(try(each.value.private_service_connection.subresource_names, ["AzureSiteRecovery"]))
