@@ -47,7 +47,7 @@ resource "time_sleep" "azurerm_role_assignment_for" {
     }
   ) > 0 ? 1 : 0
 
-  # 2 mins timer on creation
+  # 3 mins timer on creation
   create_duration = "3m"
 }
 
@@ -70,6 +70,18 @@ data "azurerm_management_group" "level" {
   }
 
   name = lower(each.key) == "root" ? data.azurerm_client_config.current.tenant_id : each.key
+}
+
+data "azurerm_key_vault_secret" "key_vault_secret" {
+  depends_on = [
+    module.dynamic_keyvault_secrets,
+    time_sleep.azurerm_role_assignment_for
+  ]
+  for_each = {
+    for key, value in try(var.role_mapping.built_in_role_mapping.dynamic_keyvault_secrets, {}) : key => value
+  }
+  key_vault_id = try(local.combined_objects_keyvaults[var.current_landingzone_key][each.value.keyvault_key].id, null)
+  name         = try(local.security.dynamic_keyvault_secrets[each.value.keyvault_key][each.key].secret_name, null)
 }
 
 locals {
@@ -96,10 +108,21 @@ locals {
     }
   )
 
+  dynamic_keyvault_secrets = tomap({
+      (var.current_landingzone_key) = {
+        for key, value in try(var.role_mapping.built_in_role_mapping.dynamic_keyvault_secrets, {}) :
+        key => {
+          id =  data.azurerm_key_vault_secret.key_vault_secret[key].resource_versionless_id
+        }
+      }
+    }
+  )
+
   # Nested objects that must be processed after the services_roles
   services_roles_deferred = {
     storage_containers          = local.combined_objects_storage_containers
     storage_account_file_shares = local.combined_objects_storage_account_file_shares
+    dynamic_keyvault_secrets    = local.dynamic_keyvault_secrets
   }
 
 
@@ -224,8 +247,8 @@ locals {
                     object_id_key_resource  = object_id_key_resource #   "object_id_key_resource" = "aks_admins"
                     object_id_lz_key        = try(object_resources.lz_key, null)
                   }
-                ]
-              ] if role_definition_name != "lz_key"
+                ] 
+              ] if !contains(["lz_key", "keyvault_key"], role_definition_name)
             ]
           ]
         ]
