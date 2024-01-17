@@ -68,6 +68,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
   name                            = data.azurecaf_name.linux[each.key].result
   network_interface_ids           = local.nic_ids
   bypass_platform_safety_checks_on_user_schedule_enabled = try(each.value.bypass_platform_safety_checks_on_user_schedule_enabled, null)
+  patch_assessment_mode           = try(each.value.patch_assessment_mode, null)
   # (Optional) Specifies the mode of in-guest patching to this Linux Virtual Machine. Possible values are AutomaticByPlatform and ImageDefault. Defaults to ImageDefault. For more information on patch modes please see the product documentation.
   patch_mode                      = try(each.value.patch_mode, "ImageDefault")
   priority                        = try(each.value.priority, null)
