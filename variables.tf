@@ -441,3 +441,12 @@ variable "powerbi_embedded" {
 variable "maintenance" {
   default = {}
 }
+variable "search_services" {
+  description = "Configuration object - Search service Resource "
+  default     = {}
+}
+variable "load_test" {
+  description = "Configuration object - Load Test resources"
+  default     = {}
+}
+
