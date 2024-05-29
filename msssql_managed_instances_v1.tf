@@ -33,7 +33,7 @@ module "mssql_managed_instances_v1" {
   managed_identities = local.combined_objects_managed_identities
   keyvault           = can(each.value.administrator_login_password) ? null : local.combined_objects_keyvaults[try(each.value.keyvault.lz_key, local.client_config.landingzone_key)][try(each.value.keyvault.key, each.value.keyvault_key)]
   primary_server_id  = null
-  group_id           = can(each.value.administrators.azuread_group_id) || can(each.value.administrators.azuread_group_key) ? try(each.value.administrators.azuread_group_id, local.combined_objects_azuread_groups[try(each.value.lz_key, local.client_config.landingzone_key)][each.value.administrators.azuread_group_key].id) : null
+  group_id           = can(each.value.administrators.azuread_group_id) || can(each.value.administrators.azuread_group_key) ? try(each.value.administrators.azuread_group_id, local.combined_objects_azuread_groups[try(each.value.administrators.lz_key, local.client_config.landingzone_key)][each.value.administrators.azuread_group_key].id) : null
   vnets             = local.combined_objects_networking
   private_endpoints = try(each.value.private_endpoints, {})
   private_dns       = local.combined_objects_private_dns
