@@ -197,14 +197,12 @@ locals {
     app_config                  = local.combined_objects_app_config
     azure_container_registries  = local.combined_objects_azure_container_registries
     client_config               = tomap({ (local.client_config.landingzone_key) = { config = local.client_config } })
-    cosmos_dbs                  = local.combined_objects_cosmos_dbs
     keyvaults                   = local.combined_objects_keyvaults
     machine_learning_workspaces = local.combined_objects_machine_learning
     managed_identities          = local.combined_objects_managed_identities
     mssql_databases             = local.combined_objects_mssql_databases
     mssql_servers               = local.combined_objects_mssql_servers
     maintenance_configuration   = local.combined_objects_maintenance_configuration
-    signalr_services            = local.combined_objects_signalr_services
     storage_accounts            = local.combined_objects_storage_accounts
     networking                  = local.combined_objects_networking
   }
@@ -227,8 +225,8 @@ locals {
     inherit_tags       = try(var.global_settings.inherit_tags, false)
     passthrough        = try(var.global_settings.passthrough, false)
     prefix             = try(var.global_settings.prefix, null)
-    prefix_with_hyphen = try(var.global_settings.prefix_with_hyphen, format("%s-", try(var.global_settings.prefix, try(var.global_settings.prefixes[0], random_string.prefix[0].result))))
-    prefixes           = try(var.global_settings.prefix, null) == "" ? null : try([var.global_settings.prefix], try(var.global_settings.prefixes, [random_string.prefix[0].result]))
+    prefix_with_hyphen = try(var.global_settings.prefix_with_hyphen, format("%s-", try(var.global_settings.prefix, try(var.global_settings.prefixes[0], random_string.prefix.0.result))))
+    prefixes           = try(var.global_settings.prefix, null) == "" ? null : try([var.global_settings.prefix], try(var.global_settings.prefixes, [random_string.prefix.0.result]))
     random_length      = try(var.global_settings.random_length, 0)
     regions            = try(var.global_settings.regions, null)
     tags               = try(var.global_settings.tags, null)
@@ -349,7 +347,7 @@ locals {
     vpn_sites                                               = try(var.networking.vpn_sites, {})
   }
 
-  object_id = coalesce(var.logged_user_objectId, var.logged_aad_app_objectId, try(data.azuread_client_config.current.object_id, null), try(data.azuread_service_principal.logged_in_app[0].object_id, null))
+  object_id = coalesce(var.logged_user_objectId, var.logged_aad_app_objectId, try(data.azuread_client_config.current.object_id, null), try(data.azuread_service_principal.logged_in_app.0.object_id, null))
 
   security = {
     disk_encryption_sets                = try(var.security.disk_encryption_sets, {})

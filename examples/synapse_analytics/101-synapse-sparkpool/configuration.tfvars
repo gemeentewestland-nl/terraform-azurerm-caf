@@ -54,7 +54,6 @@ synapse_workspaces = {
         synapse_workspace_key = "synapse_wrkspc_re1"
         node_size_family      = "MemoryOptimized"
         node_size             = "Small"
-        spark_version         = "3.4"
         auto_scale = {
           max_node_count = 50
           min_node_count = 3

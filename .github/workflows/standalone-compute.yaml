@@ -3,30 +3,19 @@
 # Licensed under the MIT License.
 #
 
-name: standalone-regressor-tf100
+name: standalone-compute
 
 on:
-  workflow_dispatch:
-    inputs:
-      base_version:
-        description: 'Select the base version to use as baseline (refer to tags)'
-        required: true
-        type: string
-      scenario:
-        description: 'Select the scenario you want to run:'
-        required: false
-        type: choice
-        default: 'standalone-scenarios.json'
-        options:
-        - standalone-scenarios-azuread.json
-        - standalone-scenarios.json
-        - standalone-compute.json
-        - standalone-networking.json
-        - standalone-scenarios-longrunners.json
+  push:
+    paths:
+      - 'compute_*'
+      - 'modules/compute/**'
+      - 'examples/compute/**'
+      - '.github/workflows/*compute.*'
 
 env:
-  TF_CLI_ARGS: '-no-color'
-  TF_CLI_ARGS_destroy: '-auto-approve -refresh=false'
+  TF_CLI_ARGS: "-no-color"
+  TF_CLI_ARGS_destroy: "-auto-approve -refresh=false"
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
@@ -44,8 +33,7 @@ jobs:
       - uses: actions/checkout@v4
       - id: load_scenarios
         run: |
-          cases=$((
-            cat ./.github/workflows/${{ github.event.inputs.scenario }}) | jq -c .)
+          cases=$(cat ./.github/workflows/standalone-compute.json | jq -c .)
           echo "matrix=${cases}" >> $GITHUB_OUTPUT
 
   testcases:
@@ -62,10 +50,8 @@ jobs:
       options: --user 0
 
     steps:
-      - name: Checkout with tag ${{ github.event.inputs.base_version }}
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.inputs.base_version }}
 
       - name: Create environment variables
         run: |
@@ -81,12 +67,14 @@ jobs:
           az login --service-principal -u '${{ env.ARM_CLIENT_ID }}' -p '${{ env.ARM_CLIENT_SECRET }}' --tenant '${{ env.ARM_TENANT_ID }}'
           az account set -s  ${{ env.ARM_SUBSCRIPTION_ID }}
 
-      - name: Terraform Init example with ${{ github.event.inputs.base_version }}
+      - name: Terraform Init example
+        id: tf_init
         run: |
           terraform -chdir=${GITHUB_WORKSPACE}/examples \
           init -upgrade=true | grep -P '^- (?=Downloading|Using|Finding|Installing)|^[^-]'
 
-      - name: Terraform Plan example with ${{ github.event.inputs.base_version }}
+      - name: Terraform Plan example
+        id: tf_plan
         run: |
           terraform -chdir=${GITHUB_WORKSPACE}/examples \
             plan \
@@ -98,7 +86,9 @@ jobs:
             -state=${{ env.STATE_FILE }} \
             -out=${{ env.PLAN_FILE }}
 
-      - name: Terraform Apply example with ${{ github.event.inputs.base_version }}
+      - name: Terraform Apply example
+        id: tf_apply
+        if: steps.tf_plan.outcome == 'success'
         run: |
           terraform -chdir=${GITHUB_WORKSPACE}/examples \
             apply \
@@ -106,47 +96,9 @@ jobs:
             -state=${{ env.STATE_FILE }} \
             ${{ env.PLAN_FILE }}
 
-      - name: Checkout from selected branch
-        uses: actions/checkout@v4
-
-      - name: Terraform Init example with selected branch
-        run: |
-          terraform -chdir=${GITHUB_WORKSPACE}/examples \
-          init -upgrade=true | grep -P '^- (?=Downloading|Using|Finding|Installing)|^[^-]'
-
-      - name: Terraform Refresh example with selected branch
-        run: |
-          terraform -chdir=${GITHUB_WORKSPACE}/examples \
-            refresh \
-            ${{ env.PARAMETER_FILES }} \
-            -var tags='{testing_job_id='"${{ github.run_id }}"'}' \
-            -var var_folder_path=${{ env.CURRENT_FOLDER }} \
-            -input=false \
-            -state=${{ env.STATE_FILE }}
-
-      - name: Terraform Plan example with selected branch
-        run: |
-          terraform -chdir=${GITHUB_WORKSPACE}/examples \
-            plan \
-            ${{ env.PARAMETER_FILES }} \
-            -var tags='{testing_job_id='"${{ github.run_id }}"'}' \
-            -var var_folder_path=${{ env.CURRENT_FOLDER }} \
-            -refresh=true \
-            -input=false \
-            -detailed-exitcode \
-            -state=${{ env.STATE_FILE }} \
-            -out=${{ env.PLAN_FILE }}-delta
-
-      - name: Terraform Apply example with selected branch
-        run: |
-          terraform -chdir=${GITHUB_WORKSPACE}/examples \
-            apply \
-            -parallelism=30 \
-            -state=${{ env.STATE_FILE }} \
-            ${{ env.PLAN_FILE }}-delta
-
       - name: Terraform Destroy planning example
-        if: ${{ always() }}
+        id: tf_destroy_plan
+        if: steps.tf_plan.outcome == 'success'
         run: |
           terraform -chdir=${GITHUB_WORKSPACE}/examples \
             plan \
@@ -160,7 +112,8 @@ jobs:
             -out=${{ env.PLAN_FILE }}-destroy
 
       - name: Terraform Destroy apply example
-        if: ${{ always() }}
+        id: tf_destroy_apply
+        if: steps.tf_destroy_plan.outcome == 'success'
         run: |
           terraform -chdir=${GITHUB_WORKSPACE}/examples \
             apply \
