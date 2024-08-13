@@ -61,11 +61,11 @@ module "mssql_managed_instances_secondary_v1" {
   subnet_id          = can(each.value.networking.subnet_id) ? each.value.networking.subnet_id : local.combined_objects_networking[try(each.value.networking.lz_key, local.client_config.landingzone_key)][each.value.networking.vnet_key].subnets[each.value.networking.subnet_key].id
   primary_server_id  = local.combined_objects_mssql_managed_instances[try(each.value.primary_server.lz_key, local.client_config.landingzone_key)][each.value.primary_server.mi_server_key].id
   keyvault           = can(each.value.administrator_login_password) ? null : local.combined_objects_keyvaults[try(each.value.keyvault.lz_key, local.client_config.landingzone_key)][try(each.value.keyvault.key, each.value.keyvault_key)]
-  group_id           = can(each.value.administrators.azuread_group_id) || can(each.value.administrators.azuread_group_key) ? try(each.value.administrators.azuread_group_id, local.combined_objects_azuread_groups[try(each.value.administrators.lz_key, local.client_config.landingzone_key)][each.value.administrators.azuread_group_key].id) : null
-  vnets             = local.combined_objects_networking
-  private_endpoints = try(each.value.private_endpoints, {})
-  private_dns       = local.combined_objects_private_dns
-  resource_groups   = local.combined_objects_resource_groups
+  group_id           = can(each.value.administrators.azuread_group_id) || can(each.value.administrators.azuread_group_key) ? try(each.value.administrators.azuread_group_id, local.combined_objects_azuread_groups[try(each.value.lz_key, local.client_config.landingzone_key)][each.value.administrators.azuread_group_key].id) : null
+  vnets              = local.combined_objects_networking
+  private_endpoints  = try(each.value.private_endpoints, {})
+  private_dns        = local.combined_objects_private_dns
+  resource_groups    = local.combined_objects_resource_groups
 
   base_tags           = try(local.global_settings.inherit_tags, false) ? try(local.combined_objects_resource_groups[try(each.value.resource_group.lz_key, local.client_config.landingzone_key)][try(each.value.resource_group.key, each.value.resource_group_key)].tags, {}) : {}
   inherit_tags        = try(local.global_settings.inherit_tags, false)
