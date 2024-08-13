@@ -19,7 +19,7 @@ resource "azurerm_lb_outbound_rule" "lb" {
   protocol                 = var.settings.protocol
 
   dynamic "frontend_ip_configuration" {
-    for_each = try(var.settings.frontend_ip_configuration, null) != null ? [var.settings.frontend_ip_configuration] : []
+    for_each = try(var.settings.frontend_ip_configuration, null)
     content {
       name = try(frontend_ip_configuration.value.name, null)
     }
