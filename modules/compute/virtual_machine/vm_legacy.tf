@@ -223,3 +223,17 @@ resource "random_password" "legacy" {
   special          = true
   override_special = "!@#$%&"
 }
+
+resource "azurerm_key_vault_secret" "legacy_password" {
+  for_each = local.os_type == "legacy" && try(var.settings.virtual_machine_settings[local.os_type].admin_password_key, null) == null ? var.settings.virtual_machine_settings : {}
+
+  name         = format("%s-legacy-password", data.azurecaf_name.legacy_computer_name[each.key].result)
+  value        = random_password.admin[local.os_type].result
+  key_vault_id = local.keyvault.id
+
+  lifecycle {
+    ignore_changes = [
+      name, value, key_vault_id
+    ]
+  }
+}
