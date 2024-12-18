@@ -5,7 +5,7 @@ module "policies_assignment" {
   name                     = each.value.name
 }
 
-output "maintenance_configuration" {
+output "policies_assignment" {
   value = module.policies_assignment
 }
 
