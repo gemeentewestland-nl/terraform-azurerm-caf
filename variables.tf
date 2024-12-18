@@ -438,6 +438,9 @@ variable "preview_features" {
 variable "powerbi_embedded" {
   default = {}
 }
+variable "policies" {
+  default = {}
+}
 variable "maintenance" {
   default = {}
 }

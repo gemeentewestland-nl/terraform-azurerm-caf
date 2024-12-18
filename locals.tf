@@ -472,6 +472,9 @@ locals {
     maintenance_assignment_virtual_machine = try(var.maintenance.maintenance_assignment_virtual_machine, {})
   }
 
+  policies = {
+    policy_assignment = try(var.policies.assignment, {})
+  }
 
   load_test = try(var.load_test, {})
 }
