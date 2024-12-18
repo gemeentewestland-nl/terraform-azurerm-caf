@@ -4,6 +4,7 @@ module "policies_assignment" {
 
   name                     = each.value.name
   policy_definition_id     = each.value.policy_definition_id
+  parameters               = each.value.parameters
 }
 
 output "policies_assignment" {
