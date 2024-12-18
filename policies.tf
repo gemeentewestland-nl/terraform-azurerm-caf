@@ -3,6 +3,7 @@ module "policies_assignment" {
   for_each = local.policies.policy_assignment
 
   name                     = each.value.name
+  policy_definition_id     = each.value.policy_definition_id
 }
 
 output "policies_assignment" {
