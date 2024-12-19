@@ -13,7 +13,7 @@ resource "azurerm_subscription_policy_assignment" "assignment" {
 }
 
 resource "azurerm_role_assignment" "assignment" {
-  scope                = azurerm_subscription_policy_assignment.assignment.scope
+  scope                = azurerm_subscription_policy_assignment.assignment.subscription_id
   role_definition_name = "Contributor"
   principal_id         = azurerm_subscription_policy_assignment.assignment.identity[0].principal_id
 }
