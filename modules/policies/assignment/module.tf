@@ -11,3 +11,9 @@ resource "azurerm_subscription_policy_assignment" "assignment" {
   }
   location = "west europe"
 }
+
+resource "azurerm_role_assignment" "assignment" {
+  scope                = azurerm_subscription_policy_assignment.assignment.scope
+  role_definition_name = "Contributor"
+  principal_id         = azurerm_subscription_policy_assignment.assignment.identity[0].principal_id
+}
