@@ -6,4 +6,8 @@ resource "azurerm_subscription_policy_assignment" "assignment" {
   policy_definition_id = var.policy_definition_id
   subscription_id      = data.azurerm_subscription.current.id
   parameters           = jsonencode(local.parameters)
+  identity {
+    type = "SystemAssigned"
+  }
+  location = "west europe"
 }
