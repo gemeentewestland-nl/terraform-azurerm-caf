@@ -140,12 +140,12 @@ resource "random_uuid" "oauth2_permission_scopes" {
 }
 
 resource "azuread_application_federated_identity_credential" "federeded_credentials" {
-  for_each = try(var.settings.federeded_credentials, null) != null ? [1] : []
+  for_each = try(var.settings.federeded_credentials, [])
 
   application_id = azuread_application.app.id
-  display_name   = try(var.settings.federeded_credentials.display_name, null)
-  description    = try(var.settings.federeded_credentials.description, null)
-  audiences      = try(var.settings.federeded_credentials.audiences, null)
-  issuer         = try(var.settings.federeded_credentials.issuer, null)
-  subject        = try(var.settings.federeded_credentials.subject, null)
+  display_name   = each.value.display_name
+  description    = each.value.description
+  audiences      = each.value.audiences
+  issuer         = each.value.issuer
+  subject        = each.value.subject
 }
