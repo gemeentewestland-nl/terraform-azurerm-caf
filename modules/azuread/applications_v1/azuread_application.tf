@@ -140,7 +140,7 @@ resource "random_uuid" "oauth2_permission_scopes" {
 }
 
 resource "azuread_application_federated_identity_credential" "federeded_credentials" {
-  for_each = var.settings.federeded_credentials != null ? toset([var.settings.federeded_credentials]) : toset([])
+  for_each = lookup(var.settings, "federeded_credentials", {}) != {} ? toset([lookup(var.settings, "federeded_credentials", {})]) : toset([])
 
   application_object_id = azuread_application.app.id
   display_name          = each.value.display_name
