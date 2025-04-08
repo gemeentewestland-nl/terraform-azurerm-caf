@@ -11,3 +11,8 @@ variable "azuread_api_permissions" {
   default = {}
 }
 variable "user_type" {}
+
+locals {
+  # Extract the values from the object and convert them to a set of strings
+  federated_credentials = lookup(var.settings, "federeded_credentials", {}) != {} ? toset(keys(lookup(var.settings, "federeded_credentials", {}))) : toset([])
+}
